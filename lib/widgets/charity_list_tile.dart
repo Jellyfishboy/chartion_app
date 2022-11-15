@@ -13,6 +13,7 @@ class CharityListTile extends StatelessWidget {
     final charities = charityData.items;
     return ListView.builder(
       padding: const EdgeInsets.all(10.0),
+      itemCount: charities.length,
       itemBuilder: (ctx, index) {
           return CharityListTileItem(
             id: charities[index].id,
