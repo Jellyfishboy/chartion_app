@@ -5,7 +5,9 @@ class Charity {
   final String name;
   final String description;
   final String registeredNumber;
-  final String logoUrl;
+  final String thumbUrl;
+  final String standardUrl;
+  final String largeUrl;
   final String uniqId;
 
   // final String onboardingStep;
@@ -19,7 +21,9 @@ class Charity {
     required this.name,
     required this.description,
     required this.registeredNumber,
-    required this.logoUrl,
+    required this.thumbUrl,
+    required this.standardUrl,
+    required this.largeUrl,
     required this.uniqId,
     // required this.onboardingStep,
     required this.currency,
@@ -33,7 +37,9 @@ class Charity {
       name: json['name'],
       description: json['description'],
       registeredNumber: json['registered_number'],
-      logoUrl: json['logo']['thumb_url'],
+      thumbUrl: json['logo']['thumb_url'],
+      standardUrl: json['logo']['standard_url'],
+      largeUrl: json['logo']['large_url'],
       uniqId: json['uniq_id'],
       currency: json['currency'],
     );

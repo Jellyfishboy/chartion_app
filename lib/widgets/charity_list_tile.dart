@@ -15,10 +15,11 @@ class CharityListTile extends StatelessWidget {
       padding: const EdgeInsets.all(10.0),
       itemCount: charities.length,
       itemBuilder: (ctx, index) {
-          return CharityListTileItem(
-            id: charities[index].id,
-            name: charities[index].name
-          );
+        return CharityListTileItem(
+          id: charities[index].id,
+          name: charities[index].name,
+          thumbUrl: charities[index].thumbUrl,
+        );
       },
     );
   }
