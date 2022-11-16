@@ -13,6 +13,13 @@ class CharitySelectDonationScreen extends StatelessWidget {
     final charityData = Provider.of<CharityProvider>(context, listen: false)
         .findById(charityId);
 
-    return Container();
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Donate to ${charityData.name}'),
+        ),
+        body: SingleChildScrollView(
+        child: Text('Select Donation')
+    ),
+    );
   }
 }

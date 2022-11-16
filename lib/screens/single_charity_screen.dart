@@ -1,3 +1,4 @@
+import 'package:chartion_app/screens/charity_select_donation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +6,13 @@ import '../providers/charity.dart';
 
 class SingleCharityScreen extends StatelessWidget {
   static const routeName = '/single_charity';
+
+  void selectDonationCharity(BuildContext context, int id) {
+    Navigator.of(context).pushNamed(
+      CharitySelectDonationScreen.routeName,
+      arguments: id,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +62,19 @@ class SingleCharityScreen extends StatelessWidget {
                   charityData.description,
                   textAlign: TextAlign.center,
                   softWrap: true,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    selectDonationCharity(context, charityId);
+                  },
+                  child: const Text('Donate Now'),
                 ),
               ),
             ],
