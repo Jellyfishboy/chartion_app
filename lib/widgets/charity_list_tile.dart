@@ -65,6 +65,8 @@ class _CharityListTileState extends State<CharityListTile> {
               contentPadding: EdgeInsets.all(15.0),
               hintText: 'Search ',
             ),
+            // change to onFieldSubmitted
+            onFieldSubmitted: (string) {},
             onChanged: (string) {
               print(string);
               setState((){
