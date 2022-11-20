@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
           routes: {
             SingleCharityScreen.routeName: (_) => SingleCharityScreen(),
             CharitySelectDonationScreen.routeName: (_) => CharitySelectDonationScreen(),
-            SearchCharityScreen.routeName: (_) => SearchCharityScreen(),
+            // SearchCharityScreen.routeName: (_) => SearchCharityScreen(),
           }
         ));
   }
