@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,27 @@ class CharityProvider with ChangeNotifier {
 
   Charity findById(int charityId) {
     return items.firstWhere((charity) => charity.id == charityId);
+  }
+
+  Future<void> searchCharities(String query) async {
+    final url = Uri.parse(
+        "https://capi.tomdallimore.com/v1/charities/search/results?query=$query");
+    try {
+      List<Charity> loadedCharities;
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final jsonResponseList = jsonDecode(response.body)['charities'] as List;
+        loadedCharities = jsonResponseList
+            .map((e) => Charity.fromJson(e as Map<String, dynamic>))
+            .toList();
+        _items = loadedCharities;
+        notifyListeners();
+      } else {
+        throw "No charities found with this search query.";
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   Future<void> listCharities() async {
