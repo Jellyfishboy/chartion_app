@@ -1,14 +1,16 @@
-import 'dart:convert';
-import 'dart:collection';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'package:http/http.dart' as http;
-
+import '../helpers/api_base_helper.dart';
 import '../models/charity.dart';
 
 class CharityProvider with ChangeNotifier {
+  ApiBaseHelper _helper = ApiBaseHelper();
   List<Charity> _items = [];
+  int _totalResults = 0;
+  int _perPage = 25;
+  int _totalPages = 0;
+  int _currentPage = 1;
+
 
   CharityProvider();
 
@@ -16,46 +18,51 @@ class CharityProvider with ChangeNotifier {
     return [..._items];
   }
 
+  int get totalResults {
+   return _totalResults;
+  }
+
+  int get perPage {
+    return _perPage;
+  }
+
+  int get totalPages {
+    return _totalPages;
+  }
+
+  int get currentPage {
+    return _currentPage;
+  }
+
   Charity findById(int charityId) {
     return items.firstWhere((charity) => charity.id == charityId);
   }
 
   Future<void> searchCharities(String query) async {
-    final url = Uri.parse(
-        "https://capi.tomdallimore.com/v1/charities/search/results?query=$query");
     try {
-      List<Charity> loadedCharities;
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final jsonResponseList = jsonDecode(response.body)['charities'] as List;
-        loadedCharities = jsonResponseList
-            .map((e) => Charity.fromJson(e as Map<String, dynamic>))
-            .toList();
-        _items = loadedCharities;
-        notifyListeners();
-      } else {
-        throw "No charities found with this search query.";
-      }
+
+      final response = await _helper.get('/charities/search/results?query=$query');
+      print(response);
+      CharityResponse charityResponse = CharityResponse.fromJson(response);
+      _items = charityResponse.results;
+      _totalResults = charityResponse.totalResults;
+      _perPage = charityResponse.perPage;
+      _totalPages = charityResponse.totalPages;
+      _currentPage = charityResponse.currentPage;
     } catch (error) {
       throw error;
     }
   }
 
   Future<void> listCharities() async {
-    final url = Uri.parse('https://capi.tomdallimore.com/v1/charities');
     try {
-      List<Charity> loadedCharities;
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final jsonResponseList = jsonDecode(response.body)['charities'] as List;
-        loadedCharities = jsonResponseList
-            .map((e) => Charity.fromJson(e as Map<String, dynamic>))
-            .toList();
-        _items = loadedCharities;
-        notifyListeners();
-      } else {
-        throw "Can't retrieve Charities.";
-      }
+      final response = await _helper.get('/charities');
+      CharityResponse charityResponse = CharityResponse.fromJson(response);
+      _items = charityResponse.results;
+      _totalResults = charityResponse.totalResults;
+      _perPage = charityResponse.perPage;
+      _totalPages = charityResponse.totalPages;
+      _currentPage = charityResponse.currentPage;
     } catch (error) {
       throw error;
     }

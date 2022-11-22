@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class Charity {
   final int id;
   final String name;
@@ -43,5 +41,25 @@ class Charity {
       uniqId: json['uniq_id'],
       currency: json['currency'],
     );
+  }
+}
+
+class CharityResponse {
+  int totalResults = 0;
+  int perPage = 0;
+  int totalPages = 1;
+  int currentPage = 1;
+  List<Charity> results = [];
+
+  CharityResponse.fromJson(Map<String, dynamic> json) {
+    totalResults = json['total'];
+    perPage = json['per_page'];
+    totalPages = json['pages'];
+    currentPage = json['current_page'];
+    if (json['charities'] != null) {
+      json['charities'].forEach((c) {
+        results.add(Charity.fromJson(c));
+      });
+    }
   }
 }
