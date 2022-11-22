@@ -48,7 +48,7 @@ class _CharityListScreenState extends State<CharityListScreen> {
         print('LOAD MORE!');
         _isLoading = false;
         // setState(() {});
-        // Provider.of<CharityProvider>(context, listen: false).listCharities(paramPerPage: 10, paramPage: 1));
+        Provider.of<CharityProvider>(context, listen: false).listCharities(loadMore: true);
       }
     }
     return true;

@@ -42,7 +42,7 @@ class CharityProvider with ChangeNotifier {
   Future<void> searchCharities({String query="", isRefresh=false, loadMore=false}) async {
     try {
 
-      final response = await _helper.get('/charities/search/results?query=$query&per_page=25&page=1');
+      final response = await _helper.get('/charities/search/results?query=$query&per_page=10&page=1');
       print(response);
       CharityResponse charityResponse = CharityResponse.fromJson(response);
       if (isRefresh || !loadMore) {
@@ -59,11 +59,14 @@ class CharityProvider with ChangeNotifier {
 
   Future<void> listCharities({isRefresh=false, loadMore=false}) async {
     try {
-      final response = await _helper.get('/charities?per_page=25&page=1');
-      CharityResponse charityResponse = CharityResponse.fromJson(response);
       if (isRefresh || !loadMore) {
-        _items = charityResponse.results;
+        _items = [];
+      } else {
+        _currentPage += 1;
       }
+      final response = await _helper.get('/charities?per_page=10&page=$_currentPage');
+      CharityResponse charityResponse = CharityResponse.fromJson(response);
+      _items += charityResponse.results;
       _totalResults = charityResponse.totalResults;
       _perPage = charityResponse.perPage;
       _totalPages = charityResponse.totalPages;
