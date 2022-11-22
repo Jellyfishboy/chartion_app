@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import './screens/charity_list_screen.dart';
 import './screens/single_charity_screen.dart';
 import './screens/charity_select_donation_screen.dart';
-import './screens/search_charity_screen.dart';
 
 import './providers/charity.dart';
 

@@ -1,5 +1,6 @@
-import 'package:chartion_app/screens/single_charity_screen.dart';
 import 'package:flutter/material.dart';
+
+import '../screens/single_charity_screen.dart';
 
 class CharityListTileItem extends StatelessWidget {
   final int id;

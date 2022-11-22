@@ -16,10 +16,10 @@ class _CharityListScreenState extends State<CharityListScreen> {
     // since the function is async we can set an await
     if (_controller.text.isEmpty) {
       await Provider.of<CharityProvider>(context, listen: false)
-          .listCharities();
+          .listCharities(paramPerPage: 10, paramPage: 1);
     } else {
       await Provider.of<CharityProvider>(context, listen: false)
-          .searchCharities(_controller.text);
+          .searchCharities(query: _controller.text, paramPerPage: 10, paramPage: 1);
     }
   }
 
