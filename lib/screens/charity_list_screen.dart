@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../providers/charity.dart';
 import '../widgets/charity_list_tile_item.dart';
 
+import '../enums/data_state.dart';
+
 class CharityListScreen extends StatefulWidget {
   @override
   State<CharityListScreen> createState() => _CharityListScreenState();
@@ -13,21 +15,24 @@ class _CharityListScreenState extends State<CharityListScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = new ScrollController();
   bool _isLoading = false;
-  bool _loadMore = false;
+  late DataState _dataState;
+  Future<void>? _listCharities;
 
   Future<void> _loadCharities(BuildContext context) async {
+    print('LOAD CHARITIES');
     // since the function is async we can set an await
     if (_controller.text.isEmpty) {
       await Provider.of<CharityProvider>(context, listen: false)
-          .listCharities(loadMore: _loadMore);
+          .listCharities(loadMore: false);
     } else {
       await Provider.of<CharityProvider>(context, listen: false)
-          .searchCharities(query: _controller.text, loadMore: _loadMore);
+          .searchCharities(query: _controller.text, loadMore: false);
     }
   }
 
   Future<void> _refreshCharities(BuildContext context) async {
     // since the function is async we can set an await
+    _isLoading = true;
     if (_controller.text.isEmpty) {
       await Provider.of<CharityProvider>(context, listen: false)
           .listCharities(isRefresh: true);
@@ -35,6 +40,7 @@ class _CharityListScreenState extends State<CharityListScreen> {
       await Provider.of<CharityProvider>(context, listen: false)
           .searchCharities(query: _controller.text, isRefresh: true);
     }
+    _isLoading = false;
   }
 
   bool _scrollNotification(ScrollNotification notification) {
@@ -46,9 +52,9 @@ class _CharityListScreenState extends State<CharityListScreen> {
               50) {
         _isLoading = true;
         print('LOAD MORE!');
-        _isLoading = false;
-        // setState(() {});
+        setState(() {});
         Provider.of<CharityProvider>(context, listen: false).listCharities(loadMore: true);
+        _isLoading = false;
       }
     }
     return true;
@@ -61,6 +67,7 @@ class _CharityListScreenState extends State<CharityListScreen> {
 
   @override
   void initState() {
+    _listCharities = _loadCharities(context);
     super.initState();
   }
 
@@ -77,6 +84,8 @@ class _CharityListScreenState extends State<CharityListScreen> {
   }
 
   Widget build(BuildContext context) {
+    _dataState = Provider.of<CharityProvider>(context, listen: false).dataState;
+
     return Scaffold(
       appBar: AppBar(title: Text('Chartion')),
       body: Column(
@@ -108,7 +117,7 @@ class _CharityListScreenState extends State<CharityListScreen> {
           ),
           Flexible(
             child: FutureBuilder(
-              future: _loadCharities(context),
+              future: _listCharities,
               builder: (ctx, charityData) => charityData.connectionState ==
                       ConnectionState.waiting
                   ? const Center(
@@ -139,14 +148,14 @@ class _CharityListScreenState extends State<CharityListScreen> {
                                         )
                                       : Column(
                                           children: [
-                                            Text(
-                                                "Total Results: ${charityData.totalResults.toString()}"),
-                                            Text(
-                                                "Per Page: ${charityData.perPage.toString()}"),
-                                            Text(
-                                                "Total Pages: ${charityData.totalPages.toString()}"),
-                                            Text(
-                                                "Current Page: ${charityData.currentPage.toString()}"),
+                                            // Text(
+                                            //     "Total Results: ${charityData.totalResults.toString()}"),
+                                            // Text(
+                                            //     "Per Page: ${charityData.perPage.toString()}"),
+                                            // Text(
+                                            //     "Total Pages: ${charityData.totalPages.toString()}"),
+                                            // Text(
+                                            //     "Current Page: ${charityData.currentPage.toString()}"),
                                             Expanded(
                                               child: ListView.builder(
                                                 itemBuilder: (ctx, index) =>
@@ -176,7 +185,9 @@ class _CharityListScreenState extends State<CharityListScreen> {
                       ),
                     ),
             ),
-          )
+          ),
+        // if (_dataState == DataState.MoreFetching)
+        //   Center(child: CircularProgressIndicator()),
         ],
       ),
     );

@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../helpers/api_base_helper.dart';
 import '../models/charity.dart';
+import '../enums/data_state.dart';
 
 class CharityProvider with ChangeNotifier {
   ApiBaseHelper _helper = ApiBaseHelper();
   List<Charity> _items = [];
   int _totalResults = 0;
   int _perPage = 25;
-  int _totalPages = 0;
+  int _totalPages = 5;
   int _currentPage = 1;
-  bool get _didLastLoad => _currentPage >= _totalPages;
+  DataState _dataState = DataState.Uninitialized;
 
 
   CharityProvider();
@@ -33,6 +34,14 @@ class CharityProvider with ChangeNotifier {
 
   int get currentPage {
     return _currentPage;
+  }
+
+  DataState get dataState {
+    return _dataState;
+  }
+
+  bool get _didLastLoad {
+    return _currentPage >= _totalPages;
   }
 
   Charity findById(int charityId) {
@@ -59,23 +68,42 @@ class CharityProvider with ChangeNotifier {
   }
 
   Future<void> listCharities({isRefresh=false, loadMore=false}) async {
+    print('LIST CHARITIES');
     try {
-      if (isRefresh || !loadMore) {
-        _items = [];
+      if (isRefresh) {
+        _items.clear();
         _currentPage = 1;
+        _dataState = DataState.Refreshing;
       } else {
-        _currentPage += 1;
+        _dataState = (_dataState == DataState.Uninitialized)
+            ? DataState.InitialFetching
+            : DataState.MoreFetching;
       }
-      final response = await _helper.get('/charities?per_page=10&page=$_currentPage');
-      CharityResponse charityResponse = CharityResponse.fromJson(response);
-      _items += charityResponse.results;
-      _totalResults = charityResponse.totalResults;
-      _perPage = charityResponse.perPage;
-      _totalPages = charityResponse.totalPages;
-      _currentPage = charityResponse.currentPage;
+      print("Total Pages: ${_totalPages}");
+      print("Did last load ${_didLastLoad}");
+      if (_didLastLoad) {
+        _dataState = DataState.NoMoreData;
+       } else {
+        if (!loadMore) {
+          _items.clear();
+          _currentPage = 1;
+        } else {
+          _currentPage += 1;
+        }
+        final response = await _helper.get(
+            '/charities?per_page=11&page=$_currentPage');
+        CharityResponse charityResponse = CharityResponse.fromJson(response);
+        _items += charityResponse.results;
+        _totalResults = charityResponse.totalResults;
+        _perPage = charityResponse.perPage;
+        _totalPages = charityResponse.totalPages;
+        _currentPage = charityResponse.currentPage;
+      }
       notifyListeners();
     } catch (error) {
+      _dataState = DataState.Error;
       throw error;
+      notifyListeners();
     }
   }
 
