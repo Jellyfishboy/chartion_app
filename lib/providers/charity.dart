@@ -52,6 +52,7 @@ class CharityProvider with ChangeNotifier {
       _perPage = charityResponse.perPage;
       _totalPages = charityResponse.totalPages;
       _currentPage = charityResponse.currentPage;
+      notifyListeners();
     } catch (error) {
       throw error;
     }
@@ -61,6 +62,7 @@ class CharityProvider with ChangeNotifier {
     try {
       if (isRefresh || !loadMore) {
         _items = [];
+        _currentPage = 1;
       } else {
         _currentPage += 1;
       }
@@ -71,6 +73,7 @@ class CharityProvider with ChangeNotifier {
       _perPage = charityResponse.perPage;
       _totalPages = charityResponse.totalPages;
       _currentPage = charityResponse.currentPage;
+      notifyListeners();
     } catch (error) {
       throw error;
     }
