@@ -39,13 +39,15 @@ class CharityProvider with ChangeNotifier {
     return items.firstWhere((charity) => charity.id == charityId);
   }
 
-  Future<void> searchCharities({String query="", int paramPerPage=25, int paramPage=1}) async {
+  Future<void> searchCharities({String query="", isRefresh=false, loadMore=false}) async {
     try {
 
-      final response = await _helper.get('/charities/search/results?query=$query&per_page=$paramPerPage&page=$paramPage');
+      final response = await _helper.get('/charities/search/results?query=$query&per_page=25&page=1');
       print(response);
       CharityResponse charityResponse = CharityResponse.fromJson(response);
-      _items = charityResponse.results;
+      if (isRefresh || !loadMore) {
+        _items = charityResponse.results;
+      }
       _totalResults = charityResponse.totalResults;
       _perPage = charityResponse.perPage;
       _totalPages = charityResponse.totalPages;
@@ -55,16 +57,17 @@ class CharityProvider with ChangeNotifier {
     }
   }
 
-  Future<List<Charity>> listCharities({int paramPerPage=25, int paramPage=1}) async {
+  Future<void> listCharities({isRefresh=false, loadMore=false}) async {
     try {
-      final response = await _helper.get('/charities?per_page=$paramPerPage&page=$paramPage');
+      final response = await _helper.get('/charities?per_page=25&page=1');
       CharityResponse charityResponse = CharityResponse.fromJson(response);
-      // _items = charityResponse.results
+      if (isRefresh || !loadMore) {
+        _items = charityResponse.results;
+      }
       _totalResults = charityResponse.totalResults;
       _perPage = charityResponse.perPage;
       _totalPages = charityResponse.totalPages;
       _currentPage = charityResponse.currentPage;
-      return charityResponse.results;
     } catch (error) {
       throw error;
     }
