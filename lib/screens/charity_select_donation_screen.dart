@@ -1,25 +1,108 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/donation_price.dart';
 import '../providers/charity.dart';
 
-class CharitySelectDonationScreen extends StatelessWidget {
+import '../widgets/donation_price_tile.dart';
+
+class CharitySelectDonationScreen extends StatefulWidget {
   static const routeName = '/charity_select_donation';
 
   @override
-  Widget build(BuildContext context) {
+  State<CharitySelectDonationScreen> createState() =>
+      _CharitySelectDonationScreenState();
+}
+
+class _CharitySelectDonationScreenState
+    extends State<CharitySelectDonationScreen> {
+  Future<void>? _listDonationPrices;
+
+
+
+  Future<void> _loadDonationPrices(BuildContext context, int charityId) async {
+    print('LOAD DONATION PRICES');
+    await Provider.of<DonationPriceProvider>(context, listen: false)
+        .listDonationPrices(charityId);
+  }
+
+  @override
+  initState() {
     final charityId = ModalRoute.of(context)?.settings?.arguments as int;
 
-    final charityData = Provider.of<CharityProvider>(context, listen: false)
-        .findById(charityId);
+    // change to a single api request for a charity
+    // final charityData = Provider.of<CharityProvider>(context, listen: false)
+    //     .findById(charityId);
+    _listDonationPrices = _loadDonationPrices(context, charityId);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Donate to ${charityData.name}'),
-        ),
-        body: SingleChildScrollView(
-        child: Text('Select Donation')
-    ),
+      appBar: AppBar(
+        title: Text('Donate to'),
+      ),
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+            width: double.infinity,
+            child: const Text(
+              'Select Donation',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Flexible(
+            child: FutureBuilder(
+              future: _listDonationPrices,
+              builder: (ctx, donationData) => donationData.connectionState ==
+                      ConnectionState.waiting
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : donationData.hasError
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30.0, vertical: 0),
+                            child: Text(donationData.error.toString()),
+                          ),
+                        )
+                      : Consumer<DonationPriceProvider>(
+                          builder: (ctx, donationData, child) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: donationData.items.isEmpty
+                                ? const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 30.0, vertical: 0),
+                                      child: Text('No donation prices found.'),
+                                    ),
+                                  )
+                                : Column(
+                                    children: [
+                                      Expanded(
+                                          child: ListView.builder(
+                                        itemBuilder: (ctx, index) {
+                                          return DonationPriceTile(
+                                            id: donationData.items[index].id,
+                                            formattedPrice: donationData
+                                                .items[index].formattedPrice,
+                                          );
+                                        },
+                                        itemCount: 0,
+                                      ))
+                                    ],
+                                  ),
+                          ),
+                        ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

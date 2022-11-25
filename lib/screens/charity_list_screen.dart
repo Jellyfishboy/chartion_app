@@ -156,14 +156,6 @@ class _CharityListScreenState extends State<CharityListScreen> {
                                         )
                                       : Column(
                                           children: [
-                                            // Text(
-                                            //     "Total Results: ${charityData.totalResults.toString()}"),
-                                            // Text(
-                                            //     "Per Page: ${charityData.perPage.toString()}"),
-                                            // Text(
-                                            //     "Total Pages: ${charityData.totalPages.toString()}"),
-                                            // Text(
-                                            //     "Current Page: ${charityData.currentPage.toString()}"),
                                             Expanded(
                                               child: ListView.builder(
                                                 itemBuilder: (ctx, index) =>

@@ -7,6 +7,7 @@ import './screens/single_charity_screen.dart';
 import './screens/charity_select_donation_screen.dart';
 
 import './providers/charity.dart';
+import './providers/donation_price.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => CharityProvider()),
+          ChangeNotifierProvider(create: (_) => DonationPriceProvider()),
         ],
         child: MaterialApp(
           title: 'Flutter Demo',
