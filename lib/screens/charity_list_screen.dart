@@ -20,18 +20,18 @@ class _CharityListScreenState extends State<CharityListScreen> {
 
   Future<void> _loadCharities(BuildContext context) async {
     print('LOAD CHARITIES');
-    // since the function is async we can set an await
-    if (_controller.text.isEmpty) {
-      await Provider.of<CharityProvider>(context, listen: false)
+    await Provider.of<CharityProvider>(context, listen: false)
           .listCharities(loadMore: false);
-    } else {
-      await Provider.of<CharityProvider>(context, listen: false)
-          .searchCharities(query: _controller.text, loadMore: false);
-    }
+  }
+
+  Future<void> _clearSearch(BuildContext context) async {
+    print('CLEAR SEARCH CHARITIES');
+    await Provider.of<CharityProvider>(context, listen: false)
+        .listCharities(loadMore: false, clearSearch: true);
   }
 
   Future<void> _refreshCharities(BuildContext context) async {
-    // since the function is async we can set an await
+    print('REFRESH CHARITIES');
     _isLoading = true;
     if (_controller.text.isEmpty) {
       await Provider.of<CharityProvider>(context, listen: false)
@@ -41,6 +41,12 @@ class _CharityListScreenState extends State<CharityListScreen> {
           .searchCharities(query: _controller.text, isRefresh: true);
     }
     _isLoading = false;
+  }
+
+  Future<void> _searchCharities(BuildContext context, String value) async {
+    print('SEARCH CHARITIES');
+    await Provider.of<CharityProvider>(context, listen: false)
+        .searchCharities(query: value, isRefresh: true);
   }
 
   bool _scrollNotification(ScrollNotification notification) {
@@ -60,9 +66,11 @@ class _CharityListScreenState extends State<CharityListScreen> {
     return true;
   }
 
-  void _clearTextField() {
+  void _clearTextField() async {
     _controller.clear();
-    setState(() {});
+    setState(() {
+      _listCharities = _clearSearch(context);
+    });
   }
 
   @override
@@ -111,7 +119,7 @@ class _CharityListScreenState extends State<CharityListScreen> {
             ),
             onSubmitted: (value) {
               print(value);
-              // _searchCharities(context, value);
+              _searchCharities(context, value);
               setState(() {});
             },
           ),

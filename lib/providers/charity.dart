@@ -50,26 +50,52 @@ class CharityProvider with ChangeNotifier {
 
   Future<void> searchCharities({String query="", isRefresh=false, loadMore=false}) async {
     try {
-
-      final response = await _helper.get('/charities/search/results?query=$query&per_page=10&page=1');
-      print(response);
-      CharityResponse charityResponse = CharityResponse.fromJson(response);
-      if (isRefresh || !loadMore) {
-        _items = charityResponse.results;
+      if (isRefresh) {
+        _items.clear();
+        _currentPage = 1;
+        _dataState = DataState.Refreshing;
+      } else {
+        _dataState = (_dataState == DataState.Uninitialized)
+            ? DataState.InitialFetching
+            : DataState.MoreFetching;
       }
-      _totalResults = charityResponse.totalResults;
-      _perPage = charityResponse.perPage;
-      _totalPages = charityResponse.totalPages;
-      _currentPage = charityResponse.currentPage;
+      print("Total Pages: ${_totalPages}");
+      print("Did last load ${_didLastLoad}");
+      if (_didLastLoad) {
+        _dataState = DataState.NoMoreData;
+      } else {
+        if (!loadMore) {
+          _items.clear();
+          _currentPage = 1;
+        } else {
+          _currentPage += 1;
+        }
+        final response = await _helper.get(
+            '/charities/search/results?query=$query&per_page=10&page=1');
+        print(response);
+        CharityResponse charityResponse = CharityResponse.fromJson(response);
+        if (isRefresh || !loadMore) {
+          _items = charityResponse.results;
+        }
+        _totalResults = charityResponse.totalResults;
+        _perPage = charityResponse.perPage;
+        _totalPages = charityResponse.totalPages;
+        _currentPage = charityResponse.currentPage;
+      }
       notifyListeners();
     } catch (error) {
       throw error;
     }
   }
 
-  Future<void> listCharities({isRefresh=false, loadMore=false}) async {
+  Future<void> listCharities({isRefresh=false, loadMore=false, clearSearch=false}) async {
     print('LIST CHARITIES');
+    print ('Load last ${_didLastLoad}');
+    print('Current Page ${_currentPage}');
     try {
+      if (clearSearch) {
+        _totalPages = 5;
+      }
       if (isRefresh) {
         _items.clear();
         _currentPage = 1;
