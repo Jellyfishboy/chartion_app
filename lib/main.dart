@@ -1,10 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import './helpers/route_generator.dart';
+
 import './screens/charity_list_screen.dart';
-import './screens/single_charity_screen.dart';
-import './screens/charity_select_donation_screen.dart';
 
 import './providers/charity.dart';
 import './providers/donation_price.dart';
@@ -31,11 +30,11 @@ class MyApp extends StatelessWidget {
             accentColor: Colors.purple,
           ),
           home: CharityListScreen(),
-          routes: {
-            SingleCharityScreen.routeName: (_) => SingleCharityScreen(),
-            CharitySelectDonationScreen.routeName: (_) => CharitySelectDonationScreen(),
-            // SearchCharityScreen.routeName: (_) => SearchCharityScreen(),
-          }
+          onGenerateRoute: RouteGenerator.generateRoute,
+          // routes: {
+          //   SingleCharityScreen.routeName: (_) => SingleCharityScreen(),
+          //   CharitySelectDonationScreen.routeName: (_) => CharitySelectDonationScreen(),
+          // }
         ));
   }
 }

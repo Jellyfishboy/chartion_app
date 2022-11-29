@@ -15,24 +15,29 @@ class _CharityListScreenState extends State<CharityListScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = new ScrollController();
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   late DataState _dataState;
-  Future<void>? _listCharities;
+  late Future<void> _listCharities;
 
   Future<void> _loadCharities(BuildContext context) async {
     print('LOAD CHARITIES');
+    loadingAnimation(true);
     await Provider.of<CharityProvider>(context, listen: false)
-          .listCharities(loadMore: false);
+        .listCharities(loadMore: false);
+    loadingAnimation(false);
   }
 
   Future<void> _clearSearch(BuildContext context) async {
     print('CLEAR SEARCH CHARITIES');
+    loadingAnimation(true);
     await Provider.of<CharityProvider>(context, listen: false)
         .listCharities(loadMore: false, clearSearch: true);
+    loadingAnimation(false);
   }
 
   Future<void> _refreshCharities(BuildContext context) async {
     print('REFRESH CHARITIES');
-    _isLoading = true;
+    loadingAnimation(true);
     if (_controller.text.isEmpty) {
       await Provider.of<CharityProvider>(context, listen: false)
           .listCharities(isRefresh: true);
@@ -40,13 +45,15 @@ class _CharityListScreenState extends State<CharityListScreen> {
       await Provider.of<CharityProvider>(context, listen: false)
           .searchCharities(query: _controller.text, isRefresh: true);
     }
-    _isLoading = false;
+    loadingAnimation(false);
   }
 
   Future<void> _searchCharities(BuildContext context, String value) async {
     print('SEARCH CHARITIES');
+    loadingAnimation(true);
     await Provider.of<CharityProvider>(context, listen: false)
         .searchCharities(query: value, isRefresh: true);
+    loadingAnimation(false);
   }
 
   bool _scrollNotification(ScrollNotification notification) {
@@ -56,11 +63,12 @@ class _CharityListScreenState extends State<CharityListScreen> {
           _scrollController.position.maxScrollExtent -
                   _scrollController.offset <=
               50) {
-        _isLoading = true;
+        _isLoadingMore = true;
         print('LOAD MORE!');
         setState(() {});
-        Provider.of<CharityProvider>(context, listen: false).listCharities(loadMore: true);
-        _isLoading = false;
+        Provider.of<CharityProvider>(context, listen: false)
+            .listCharities(loadMore: true);
+        _isLoadingMore = false;
       }
     }
     return true;
@@ -70,6 +78,12 @@ class _CharityListScreenState extends State<CharityListScreen> {
     _controller.clear();
     setState(() {
       _listCharities = _clearSearch(context);
+    });
+  }
+
+  void loadingAnimation(bool isLoading) {
+    setState(() {
+      _isLoading = isLoading;
     });
   }
 
@@ -124,70 +138,86 @@ class _CharityListScreenState extends State<CharityListScreen> {
             },
           ),
           Flexible(
-            child: FutureBuilder(
-              future: _listCharities,
-              builder: (ctx, charityData) => charityData.connectionState ==
-                      ConnectionState.waiting
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : NotificationListener<ScrollNotification>(
-                      onNotification: _scrollNotification,
-                      child: RefreshIndicator(
-                        onRefresh: () => _refreshCharities(context),
-                        child: charityData.hasError
-                            ? Center(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 30.0, vertical: 0),
-                                  child: Text(charityData.error.toString()),
-                                ),
-                              )
-                            : Consumer<CharityProvider>(
-                                builder: (ctx, charityData, child) => Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: charityData.items.isEmpty
-                                      ? const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 30.0, vertical: 0),
-                                            child: Text('No charities found.'),
-                                          ),
-                                        )
-                                      : Column(
-                                          children: [
-                                            Expanded(
-                                              child: ListView.builder(
-                                                itemBuilder: (ctx, index) =>
-                                                    Column(
-                                                  children: [
-                                                    CharityListTileItem(
-                                                      id: charityData
-                                                          .items[index].id,
-                                                      name: charityData
-                                                          .items[index].name,
-                                                      thumbUrl: charityData
-                                                          .items[index]
-                                                          .thumbUrl,
-                                                    ),
-                                                    Divider()
-                                                  ],
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : FutureBuilder(
+                    future: _listCharities,
+                    builder: (ctx, charityData) => charityData
+                                .connectionState ==
+                            ConnectionState.waiting
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : NotificationListener<ScrollNotification>(
+                            onNotification: _scrollNotification,
+                            child: RefreshIndicator(
+                              onRefresh: () => _refreshCharities(context),
+                              child: charityData.hasError
+                                  ? Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 30.0, vertical: 0),
+                                        child:
+                                            Text(charityData.error.toString()),
+                                      ),
+                                    )
+                                  : Consumer<CharityProvider>(
+                                      builder: (ctx, charityData, child) =>
+                                          Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: charityData.items.isEmpty
+                                            ? const Center(
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 30.0,
+                                                      vertical: 0),
+                                                  child: Text(
+                                                      'No charities found.'),
                                                 ),
-                                                controller: _scrollController,
-                                                itemCount:
-                                                    charityData.items.length,
+                                              )
+                                            : Column(
+                                                children: [
+                                                  Expanded(
+                                                    child: ListView.builder(
+                                                      itemBuilder:
+                                                          (ctx, index) =>
+                                                              Column(
+                                                        children: [
+                                                          CharityListTileItem(
+                                                            id: charityData
+                                                                .items[index]
+                                                                .id,
+                                                            name: charityData
+                                                                .items[index]
+                                                                .name,
+                                                            thumbUrl:
+                                                                charityData
+                                                                    .items[
+                                                                        index]
+                                                                    .thumbUrl,
+                                                          ),
+                                                          Divider()
+                                                        ],
+                                                      ),
+                                                      controller:
+                                                          _scrollController,
+                                                      itemCount: charityData
+                                                          .items.length,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                ),
-                              ),
-                      ),
-                    ),
-            ),
+                                      ),
+                                    ),
+                            ),
+                          ),
+                  ),
           ),
-        // if (_dataState == DataState.MoreFetching)
-        //   Center(child: CircularProgressIndicator()),
+          // if (_dataState == DataState.MoreFetching)
+          if (_isLoadingMore)
+            Center(child: CircularProgressIndicator()),
         ],
       ),
     );

@@ -7,6 +7,7 @@ import '../enums/data_state.dart';
 class CharityProvider with ChangeNotifier {
   ApiBaseHelper _helper = ApiBaseHelper();
   List<Charity> _items = [];
+  late Charity _singleItem;
   int _totalResults = 0;
   int _perPage = 25;
   int _totalPages = 5;
@@ -18,6 +19,10 @@ class CharityProvider with ChangeNotifier {
 
   List<Charity> get items {
     return [..._items];
+  }
+
+  Charity get singleItem {
+    return _singleItem;
   }
 
   int get totalResults {
@@ -44,8 +49,20 @@ class CharityProvider with ChangeNotifier {
     return _currentPage >= _totalPages;
   }
 
-  Charity findById(int charityId) {
-    return items.firstWhere((charity) => charity.id == charityId);
+  Future<void> findById(int charityId) async {
+    try {
+      _dataState = (_dataState == DataState.Uninitialized)
+          ? DataState.InitialFetching
+          : DataState.MoreFetching;
+      final response = await _helper.get(
+          '/charities/$charityId');
+      print(response);
+      Charity charityResponse = Charity.fromJson(response);
+      _singleItem = charityResponse;
+    } catch(error) {
+      throw error;
+    }
+    // return items.firstWhere((charity) => charity.id == charityId);
   }
 
   Future<void> searchCharities({String query="", isRefresh=false, loadMore=false}) async {
