@@ -19,6 +19,7 @@ class CharitySelectDonationScreen extends StatefulWidget {
 class _CharitySelectDonationScreenState extends State<CharitySelectDonationScreen> {
   late Future<void> _listDonationPrices;
   bool _isLoading = false;
+  int _currentSelectedPriceId = -1;
 
   Future<void> _loadDonationPrices(BuildContext context) async {
     print('LOAD DONATION PRICES');
@@ -45,6 +46,13 @@ class _CharitySelectDonationScreenState extends State<CharitySelectDonationScree
     });
   }
 
+  void _setSelectedPrice(int value) {
+    setState(() {
+      _currentSelectedPriceId = value;
+      print('Selected Price ID: $_currentSelectedPriceId');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +70,7 @@ class _CharitySelectDonationScreenState extends State<CharitySelectDonationScree
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
-          Flexible(
+          Expanded(
             child: FutureBuilder(
               future: _listDonationPrices,
               builder: (ctx, donationData) => donationData.connectionState ==
@@ -94,18 +102,38 @@ class _CharitySelectDonationScreenState extends State<CharitySelectDonationScree
                                       Expanded(
                                           child: ListView.builder(
                                         itemBuilder: (ctx, index) {
-                                          return DonationPriceTile(
-                                            id: donationData.items[index].id,
-                                            formattedPrice: donationData
-                                                .items[index].formattedPrice,
+                                          return Column(
+                                            children: [
+                                              DonationPriceTile(
+                                                id: donationData.items[index].id,
+                                                formattedPrice: donationData
+                                                    .items[index].formattedPrice,
+                                                currentSelectPrice: _currentSelectedPriceId,
+                                                setSelectedPrice: _setSelectedPrice,
+                                              ),
+                                              Divider(),
+                                            ],
                                           );
                                         },
-                                        itemCount: 0,
+                                        itemCount: donationData.items.length,
                                       ))
                                     ],
                                   ),
                           ),
                         ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () {
+              },
+              style: TextButton.styleFrom(
+                primary: Colors.white,
+                backgroundColor: Theme.of(context).primaryColor,
+              ),
+              child: const Text('Donate Now'),
             ),
           )
         ],

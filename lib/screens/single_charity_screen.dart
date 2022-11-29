@@ -61,86 +61,96 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : FutureBuilder(
-              future: _charityData,
-              builder: (ctx, charityData) => charityData.connectionState ==
-                      ConnectionState.waiting
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : charityData.hasError
-                      ? Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 30.0, vertical: 0),
-                            child: Text(charityData.error.toString()),
-                          ),
-                        )
-                      : Consumer<CharityProvider>(
-                          builder: (ctx, charityData, child) =>
-                              SingleChildScrollView(
-                            child: Column(
-                              children: <Widget>[
-                                Container(
-                                  height: 300,
-                                  width: double.infinity,
-                                  child: Hero(
-                                    tag: charityData.singleItem.id,
-                                    child: Image.network(
-                                      charityData.singleItem.standardUrl,
-                                      fit: BoxFit.cover,
-                                    ),
+          : Column(
+            children: [
+              Expanded(
+                child: FutureBuilder(
+                    future: _charityData,
+                    builder: (ctx, charityData) => charityData.connectionState ==
+                            ConnectionState.waiting
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : charityData.hasError
+                            ? Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 30.0, vertical: 0),
+                                  child: Text(charityData.error.toString()),
+                                ),
+                              )
+                            : Consumer<CharityProvider>(
+                                builder: (ctx, charityData, child) =>
+                                    SingleChildScrollView(
+                                  child: Column(
+                                    children: <Widget>[
+                                      Container(
+                                        height: 300,
+                                        width: double.infinity,
+                                        child: Hero(
+                                          tag: charityData.singleItem.id,
+                                          child: Image.network(
+                                            charityData.singleItem.standardUrl,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 10),
+                                        width: double.infinity,
+                                        child: Text(
+                                          charityData.singleItem.name,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20),
+                                          softWrap: true,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 10),
+                                        width: double.infinity,
+                                        child: Text(
+                                          charityData.singleItem.description,
+                                          textAlign: TextAlign.center,
+                                          softWrap: true,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  width: double.infinity,
-                                  child: Text(
-                                    charityData.singleItem.name,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20),
-                                    softWrap: true,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  width: double.infinity,
-                                  child: Text(
-                                    charityData.singleItem.description,
-                                    textAlign: TextAlign.center,
-                                    softWrap: true,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  width: double.infinity,
-                                  child: TextButton(
-                                    onPressed: () {
-                                      selectDonationCharity(
-                                        context,
-                                        charityData.singleItem.id,
-                                        charityData.singleItem.name,
-                                      );
-                                    },
-                                    child: const Text('Donate Now'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-            ),
+                              ),
+                  ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    selectDonationCharity(
+                      context,
+                      widget.charityData['id'],
+                      widget.charityData['name'],
+                    );
+                  },
+                  style: TextButton.styleFrom(
+                    primary: Colors.white,
+                    backgroundColor: Theme.of(context).primaryColor,
+                  ),
+                  child: const Text('Donate Now'),
+                ),
+              )
+            ],
+          ),
     );
   }
 }
