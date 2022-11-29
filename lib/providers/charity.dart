@@ -59,6 +59,7 @@ class CharityProvider with ChangeNotifier {
       print(response);
       Charity charityResponse = Charity.fromJson(response);
       _singleItem = charityResponse;
+      notifyListeners();
     } catch(error) {
       throw error;
     }

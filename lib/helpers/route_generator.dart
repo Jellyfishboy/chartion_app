@@ -15,10 +15,10 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (context) => SingleCharityScreen(charityData: args),
         );
-      // case CharitySelectDonationScreen.routeName:
-      //   return MaterialPageRoute(
-      //     builder: (context) => CharitySelectDonationScreen(charityData: args),
-      //   );
+      case CharitySelectDonationScreen.routeName:
+        return MaterialPageRoute(
+          builder: (context) => CharitySelectDonationScreen(charityData: args),
+        );
       default:
         return _errorRoute();
     }

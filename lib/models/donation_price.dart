@@ -1,6 +1,6 @@
 class DonationPrice {
   final int id;
-  final double price;
+  final String price;
   final String currency;
   final String formattedPrice;
 
@@ -25,8 +25,8 @@ class DonationPriceResponse {
   List<DonationPrice> results = [];
 
   DonationPriceResponse.fromJson(Map<String, dynamic> json) {
-    if (json['donation_prices'] != null) {
-      json['donation_prices'].forEach((c) {
+    if (json['prices'] != null) {
+      json['prices'].forEach((c) {
         results.add(DonationPrice.fromJson(c));
       });
     }

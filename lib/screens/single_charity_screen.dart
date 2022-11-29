@@ -17,111 +17,130 @@ class SingleCharityScreen extends StatefulWidget {
 
 class _SingleCharityScreenState extends State<SingleCharityScreen> {
   late Future<void> _charityData;
+  bool _isLoading = false;
 
   Future<void> _loadCharity(BuildContext context) async {
     print('LOAD SINGLE CHARITY');
-    await Provider.of<CharityProvider>(context)
-        .findById(widget.charityData as int);
+    loadingAnimation(true);
+    await Provider.of<CharityProvider>(context, listen: false)
+        .findById(widget.charityData['id'] as int);
+    loadingAnimation(false);
   }
 
   @override
   void initState() {
+    _charityData = _loadCharity(context);
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    _charityData = _loadCharity(context);
     super.didChangeDependencies();
   }
 
-  void selectDonationCharity(BuildContext context, int id) {
-    // Navigator.of(context).pushNamed(
-    //   CharitySelectDonationScreen.routeName,
-    //   arguments: id,
-    // );
+  void selectDonationCharity(BuildContext context, int id, String name) {
+    Navigator.of(context).pushNamed(
+      CharitySelectDonationScreen.routeName,
+      arguments: {'id': id, 'name': name},
+    );
+  }
+
+  void loadingAnimation(bool isLoading) {
+    setState(() {
+      _isLoading = isLoading;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(charityData.name),
-      // ),
-      body: FutureBuilder(
-        future: _loadCharity(context),
-        builder: (ctx, charityData) => charityData.connectionState ==
-                ConnectionState.waiting
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : charityData.hasError
-                ? Center(
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 30.0, vertical: 0),
-                      child: Text(charityData.error.toString()),
-                    ),
-                  )
-                : Consumer<CharityProvider>(
-                    builder: (ctx, charityData, child) => SingleChildScrollView(
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            height: 300,
-                            width: double.infinity,
-                            child: Hero(
-                              tag: charityData.singleItem.id,
-                              child: Image.network(
-                                charityData.singleItem.standardUrl,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            width: double.infinity,
-                            child: Text(
-                              charityData.singleItem.name,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
-                              softWrap: true,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            width: double.infinity,
-                            child: Text(
-                              charityData.singleItem.description,
-                              textAlign: TextAlign.center,
-                              softWrap: true,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            width: double.infinity,
-                            child: TextButton(
-                              onPressed: () {
-                                selectDonationCharity(context, charityData.singleItem.id);
-                              },
-                              child: const Text('Donate Now'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+      appBar: AppBar(
+        title: Text(widget.charityData['name']),
       ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : FutureBuilder(
+              future: _charityData,
+              builder: (ctx, charityData) => charityData.connectionState ==
+                      ConnectionState.waiting
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : charityData.hasError
+                      ? Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 30.0, vertical: 0),
+                            child: Text(charityData.error.toString()),
+                          ),
+                        )
+                      : Consumer<CharityProvider>(
+                          builder: (ctx, charityData, child) =>
+                              SingleChildScrollView(
+                            child: Column(
+                              children: <Widget>[
+                                Container(
+                                  height: 300,
+                                  width: double.infinity,
+                                  child: Hero(
+                                    tag: charityData.singleItem.id,
+                                    child: Image.network(
+                                      charityData.singleItem.standardUrl,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  width: double.infinity,
+                                  child: Text(
+                                    charityData.singleItem.name,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20),
+                                    softWrap: true,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  width: double.infinity,
+                                  child: Text(
+                                    charityData.singleItem.description,
+                                    textAlign: TextAlign.center,
+                                    softWrap: true,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  width: double.infinity,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      selectDonationCharity(
+                                        context,
+                                        charityData.singleItem.id,
+                                        charityData.singleItem.name,
+                                      );
+                                    },
+                                    child: const Text('Donate Now'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+            ),
     );
   }
 }

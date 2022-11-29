@@ -16,7 +16,7 @@ class CharityListTileItem extends StatelessWidget {
   void selectCharity(BuildContext context, int id) {
     Navigator.of(context).pushNamed(
       SingleCharityScreen.routeName,
-      arguments: id,
+      arguments: {'id': id, 'name': name},
     );
   }
 
