@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+
+import '../providers/donation_price.dart';
 
 class PaymentScreen extends StatefulWidget {
   final dynamic paymentData;
@@ -15,6 +19,9 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
+  late Future<void> _priceData;
+  bool _isLoading = false;
+
   // Future<void> createPaymentIntent(String amount, String currency) async {
   //   try {
   //     //Request body
@@ -37,6 +44,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
   //     throw Exception(err.toString());
   //   }
   // }
+  Future<void> _loadDonationPrice(BuildContext context) async {
+    print('LOAD SINGLE DONATION PRICE');
+    loadingAnimation(true);
+    await Provider.of<DonationPriceProvider>(context, listen: false)
+        .findById(widget.paymentData['charityId'] as int,
+        widget.paymentData['id'] as int);
+    loadingAnimation(false);
+  }
+
+  void loadingAnimation(bool isLoading) {
+    setState(() {
+      _isLoading = isLoading;
+    });
+  }
+
+  @override
+  void initState() {
+    _priceData = _loadDonationPrice(context)
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

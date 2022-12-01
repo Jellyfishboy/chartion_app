@@ -58,7 +58,7 @@ class _CharitySelectDonationScreenState extends State<CharitySelectDonationScree
   void selectDonationPrice(BuildContext context, int id) {
     Navigator.of(context).pushNamed(
       PaymentScreen.routeName,
-      arguments: {'id': id},
+      arguments: {'id': id, 'charityId': widget.charityData['id']},
     );
   }
 
