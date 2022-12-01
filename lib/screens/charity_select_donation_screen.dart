@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../providers/donation_price.dart';
 
+import '../screens/payment_screen.dart';
+
 import '../widgets/donation_price_tile.dart';
 
 class CharitySelectDonationScreen extends StatefulWidget {
@@ -51,6 +53,13 @@ class _CharitySelectDonationScreenState extends State<CharitySelectDonationScree
       _currentSelectedPriceId = value;
       print('Selected Price ID: $_currentSelectedPriceId');
     });
+  }
+
+  void selectDonationPrice(BuildContext context, int id) {
+    Navigator.of(context).pushNamed(
+      PaymentScreen.routeName,
+      arguments: {'id': id},
+    );
   }
 
   @override
@@ -128,6 +137,7 @@ class _CharitySelectDonationScreenState extends State<CharitySelectDonationScree
             width: double.infinity,
             child: TextButton(
               onPressed: () {
+                selectDonationPrice(context, _currentSelectedPriceId);
               },
               style: TextButton.styleFrom(
                 primary: Colors.white,

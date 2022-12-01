@@ -1,9 +1,10 @@
-import 'package:chartion_app/screens/charity_select_donation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/charity.dart';
 import '../providers/charity.dart';
+
+import '../screens/charity_select_donation_screen.dart';
 
 class SingleCharityScreen extends StatefulWidget {
   final dynamic charityData;
