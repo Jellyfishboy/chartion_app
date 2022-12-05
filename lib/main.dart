@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 import './helpers/route_generator.dart';
+import './helpers/global_data.dart';
 
 import './screens/charity_list_screen.dart';
 
 import './providers/charity.dart';
 import './providers/donation_price.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  Stripe.publishableKey = GlobalData.stripePublishableKey;
+
+  await dotenv.load(fileName: 'assets/.env');
+
   runApp(const MyApp());
 }
 

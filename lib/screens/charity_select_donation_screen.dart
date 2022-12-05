@@ -18,7 +18,8 @@ class CharitySelectDonationScreen extends StatefulWidget {
       _CharitySelectDonationScreenState();
 }
 
-class _CharitySelectDonationScreenState extends State<CharitySelectDonationScreen> {
+class _CharitySelectDonationScreenState
+    extends State<CharitySelectDonationScreen> {
   late Future<void> _listDonationPrices;
   bool _isLoading = false;
   int _currentSelectedPriceId = -1;
@@ -58,7 +59,11 @@ class _CharitySelectDonationScreenState extends State<CharitySelectDonationScree
   void selectDonationPrice(BuildContext context, int id) {
     Navigator.of(context).pushNamed(
       PaymentScreen.routeName,
-      arguments: {'id': id, 'charityId': widget.charityData['id']},
+      arguments: {
+        'id': id,
+        'charityId': widget.charityData['id'],
+        'charityName': widget.charityData['name'],
+      },
     );
   }
 
@@ -114,11 +119,15 @@ class _CharitySelectDonationScreenState extends State<CharitySelectDonationScree
                                           return Column(
                                             children: [
                                               DonationPriceTile(
-                                                id: donationData.items[index].id,
+                                                id: donationData
+                                                    .items[index].id,
                                                 formattedPrice: donationData
-                                                    .items[index].formattedPrice,
-                                                currentSelectPrice: _currentSelectedPriceId,
-                                                setSelectedPrice: _setSelectedPrice,
+                                                    .items[index]
+                                                    .formattedPrice,
+                                                currentSelectPrice:
+                                                    _currentSelectedPriceId,
+                                                setSelectedPrice:
+                                                    _setSelectedPrice,
                                               ),
                                               Divider(),
                                             ],

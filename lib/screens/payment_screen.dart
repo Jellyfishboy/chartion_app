@@ -47,8 +47,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> _loadDonationPrice(BuildContext context) async {
     print('LOAD SINGLE DONATION PRICE');
     loadingAnimation(true);
-    await Provider.of<DonationPriceProvider>(context, listen: false)
-        .findById(widget.paymentData['charityId'] as int,
+    await Provider.of<DonationPriceProvider>(context, listen: false).findById(
+        widget.paymentData['charityId'] as int,
         widget.paymentData['id'] as int);
     loadingAnimation(false);
   }
@@ -61,7 +61,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   void initState() {
-    _priceData = _loadDonationPrice(context)
+    _priceData = _loadDonationPrice(context);
     super.initState();
   }
 
@@ -69,15 +69,70 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Donation Payment'),
+        title: Text('Donate to ${widget.paymentData['charityName']}'),
       ),
-      body: Container(
-        child: Column(
-          children: [
-            Text(widget.paymentData['id'].toString()),
-          ],
-        ),
-      ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: FutureBuilder(
+                    future: _priceData,
+                    builder: (ctx, priceData) => priceData
+                                .connectionState ==
+                            ConnectionState.waiting
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : priceData.hasError
+                            ? Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 30.0, vertical: 0),
+                                  child: Text(priceData.error.toString()),
+                                ),
+                              )
+                            : Consumer<DonationPriceProvider>(
+                                builder: (ctx, priceData, child) =>
+                                    SingleChildScrollView(
+                                  child: Column(
+                                    children: <Widget>[
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 30),
+                                        width: double.infinity,
+                                        child: Text(
+                                          'Donate ${priceData.singleItem.formattedPrice}',
+                                          textAlign: TextAlign.center,
+                                          softWrap: true,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () {
+                    },
+                    style: TextButton.styleFrom(
+                      primary: Colors.white,
+                      backgroundColor: Theme.of(context).primaryColor,
+                    ),
+                    child: const Text('Complete Payment'),
+                  ),
+                )
+              ],
+            ),
     );
   }
 }

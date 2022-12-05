@@ -2,15 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
+import 'global_data.dart';
+
 import '../exceptions/app_exception.dart';
 
 class ApiBaseHelper {
-  final String _baseUrl = "https://capi.tomdallimore.com/v1/";
 
   Future<dynamic> get(String url) async {
     Map<String, dynamic> responseJson;
     try {
-      final formattedUrl = Uri.parse(_baseUrl + url);
+      final formattedUrl = Uri.parse(GlobalData.baseApiUrl + url);
       final response = await http.get(formattedUrl);
       responseJson = _returnResponse(response);
     } on SocketException {
