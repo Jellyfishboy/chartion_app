@@ -39,10 +39,10 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
     super.didChangeDependencies();
   }
 
-  void selectDonationCharity(BuildContext context, int id, String name) {
+  void selectDonationCharity(BuildContext context, int id, String name, String currency) {
     Navigator.of(context).pushNamed(
       CharitySelectDonationScreen.routeName,
-      arguments: {'id': id, 'name': name},
+      arguments: {'id': id, 'name': name, 'currency': currency},
     );
   }
 
@@ -62,27 +62,26 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : Column(
-            children: [
-              Expanded(
-                child: FutureBuilder(
-                    future: _charityData,
-                    builder: (ctx, charityData) => charityData.connectionState ==
-                            ConnectionState.waiting
-                        ? const Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : charityData.hasError
-                            ? Center(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 30.0, vertical: 0),
-                                  child: Text(charityData.error.toString()),
-                                ),
-                              )
-                            : Consumer<CharityProvider>(
-                                builder: (ctx, charityData, child) =>
-                                    SingleChildScrollView(
+          : FutureBuilder(
+              future: _charityData,
+              builder: (ctx, charityData) => charityData.connectionState ==
+                      ConnectionState.waiting
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : charityData.hasError
+                      ? Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 30.0, vertical: 0),
+                            child: Text(charityData.error.toString()),
+                          ),
+                        )
+                      : Consumer<CharityProvider>(
+                          builder: (ctx, charityData, child) => Column(
+                            children: [
+                              Expanded(
+                                child: SingleChildScrollView(
                                   child: Column(
                                     children: <Widget>[
                                       Container(
@@ -100,7 +99,8 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
                                         height: 10,
                                       ),
                                       Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 10),
+                                        padding:
+                                            EdgeInsets.symmetric(horizontal: 10),
                                         width: double.infinity,
                                         child: Text(
                                           charityData.singleItem.name,
@@ -115,7 +115,8 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
                                         height: 10,
                                       ),
                                       Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 10),
+                                        padding:
+                                            EdgeInsets.symmetric(horizontal: 10),
                                         width: double.infinity,
                                         child: Text(
                                           charityData.singleItem.description,
@@ -130,28 +131,30 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
                                   ),
                                 ),
                               ),
-                  ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () {
-                    selectDonationCharity(
-                      context,
-                      widget.charityData['id'],
-                      widget.charityData['name'],
-                    );
-                  },
-                  style: TextButton.styleFrom(
-                    primary: Colors.white,
-                    backgroundColor: Theme.of(context).primaryColor,
-                  ),
-                  child: const Text('Donate Now'),
-                ),
-              )
-            ],
-          ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                width: double.infinity,
+                                child: TextButton(
+                                  onPressed: () {
+                                    selectDonationCharity(
+                                      context,
+                                      charityData.singleItem.id,
+                                      charityData.singleItem.name,
+                                      charityData.singleItem.currency
+                                    );
+                                  },
+                                  style: TextButton.styleFrom(
+                                    primary: Colors.white,
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
+                                  ),
+                                  child: const Text('Donate Now'),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+            ),
     );
   }
 }

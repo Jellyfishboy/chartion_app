@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 
 class DonationPriceTile extends StatelessWidget {
   final int id;
+  final String price;
   final String formattedPrice;
-  final int currentSelectPrice;
+  final String currentSelectedPrice;
   final Function setSelectedPrice;
 
   const DonationPriceTile({
     required this.id,
+    required this.price,
     required this.formattedPrice,
-    required this.currentSelectPrice,
+    required this.currentSelectedPrice,
     required this.setSelectedPrice,
   });
 
@@ -20,8 +22,8 @@ class DonationPriceTile extends StatelessWidget {
         // selectDonationPrice(context, id);
       },
       child: RadioListTile(
-        value: id,
-        groupValue: currentSelectPrice,
+        value: price,
+        groupValue: currentSelectedPrice,
         title: Text(formattedPrice),
         onChanged: (value) {
           setSelectedPrice(value);

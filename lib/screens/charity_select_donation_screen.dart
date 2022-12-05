@@ -28,7 +28,7 @@ class _CharitySelectDonationScreenState
   Map<String, dynamic>? paymentIntent;
   bool _isLoading = false;
   bool _isPayButtonDisabled = false;
-  int _currentSelectedPriceId = -1;
+  String _currentSelectedPrice = '0';
 
   Future<void> _loadDonationPrices(BuildContext context) async {
     print('LOAD DONATION PRICES');
@@ -61,19 +61,24 @@ class _CharitySelectDonationScreenState
     });
   }
 
-  void _setSelectedPrice(int value) {
+  void _setSelectedPrice(String value) {
     setState(() {
-      _currentSelectedPriceId = value;
-      print('Selected Price ID: $_currentSelectedPriceId');
+      _currentSelectedPrice = value;
+      print('Selected Price ID: $_currentSelectedPrice');
     });
   }
 
-  createPaymentIntent() async {
+  calculateAmount(String amount) {
+    final calculatedAmount = ((double.parse(amount)) * 100).toInt();
+    return calculatedAmount.toString();
+  }
+
+  createPaymentIntent(String amount, String currency) async {
     try {
       //Request body
       Map<String, dynamic> body = {
-        'amount': '1000',
-        'currency': 'usd',
+        'amount': calculateAmount(amount),
+        'currency': currency,
       };
 
       //Make post request to Stripe
@@ -127,15 +132,16 @@ class _CharitySelectDonationScreenState
   Future<void> createPayment() async {
     try {
       disabledButton(true);
-      paymentIntent = await createPaymentIntent();
+      paymentIntent =
+          await createPaymentIntent(_currentSelectedPrice, widget.charityData['currency']);
 
       await Stripe.instance
           .initPaymentSheet(
-          paymentSheetParameters: SetupPaymentSheetParameters(
-              paymentIntentClientSecret: paymentIntent![
-              'client_secret'], //Gotten from payment intent
-              style: ThemeMode.light,
-              merchantDisplayName: 'Chartion'))
+              paymentSheetParameters: SetupPaymentSheetParameters(
+                  paymentIntentClientSecret: paymentIntent![
+                      'client_secret'], //Gotten from payment intent
+                  style: ThemeMode.light,
+                  merchantDisplayName: 'Chartion'))
           .then((value) {});
 
       displayPaymentSheet();
@@ -218,11 +224,13 @@ class _CharitySelectDonationScreenState
                                               DonationPriceTile(
                                                 id: donationData
                                                     .items[index].id,
+                                                price: donationData
+                                                    .items[index].price,
                                                 formattedPrice: donationData
                                                     .items[index]
                                                     .formattedPrice,
-                                                currentSelectPrice:
-                                                    _currentSelectedPriceId,
+                                                currentSelectedPrice:
+                                                    _currentSelectedPrice,
                                                 setSelectedPrice:
                                                     _setSelectedPrice,
                                               ),
@@ -249,7 +257,8 @@ class _CharitySelectDonationScreenState
                 primary: Colors.white,
                 backgroundColor: Theme.of(context).primaryColor,
               ),
-              child: Text(_isPayButtonDisabled ? 'Processing...' : 'Complete Payment'),
+              child: Text(
+                  _isPayButtonDisabled ? 'Processing...' : 'Complete Payment'),
             ),
           )
         ],
