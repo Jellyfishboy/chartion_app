@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../screens/charity_list_screen.dart';
 import '../screens/single_charity_screen.dart';
 import '../screens/charity_select_donation_screen.dart';
-import '../screens/payment_screen.dart';
+import '../screens/payment_result_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -20,9 +20,9 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (context) => CharitySelectDonationScreen(charityData: args),
         );
-      case PaymentScreen.routeName:
+      case PaymentResultScreen.routeName:
         return MaterialPageRoute(
-          builder: (context) => PaymentScreen(paymentData: args),
+          builder: (context) => PaymentResultScreen(paymentData: args),
         );
       default:
         return _errorRoute();

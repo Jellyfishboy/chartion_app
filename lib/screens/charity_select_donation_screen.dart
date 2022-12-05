@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 import '../providers/donation_price.dart';
 
-import '../screens/payment_screen.dart';
+import '../screens/payment_result_screen.dart';
 
 import '../widgets/donation_price_tile.dart';
 
@@ -21,7 +25,9 @@ class CharitySelectDonationScreen extends StatefulWidget {
 class _CharitySelectDonationScreenState
     extends State<CharitySelectDonationScreen> {
   late Future<void> _listDonationPrices;
+  Map<String, dynamic>? paymentIntent;
   bool _isLoading = false;
+  bool _isPayButtonDisabled = false;
   int _currentSelectedPriceId = -1;
 
   Future<void> _loadDonationPrices(BuildContext context) async {
@@ -49,6 +55,12 @@ class _CharitySelectDonationScreenState
     });
   }
 
+  void disabledButton(bool isDisabled) {
+    setState(() {
+      _isPayButtonDisabled = isDisabled;
+    });
+  }
+
   void _setSelectedPrice(int value) {
     setState(() {
       _currentSelectedPriceId = value;
@@ -56,16 +68,101 @@ class _CharitySelectDonationScreenState
     });
   }
 
-  void selectDonationPrice(BuildContext context, int id) {
-    Navigator.of(context).pushNamed(
-      PaymentScreen.routeName,
-      arguments: {
-        'id': id,
-        'charityId': widget.charityData['id'],
-        'charityName': widget.charityData['name'],
-      },
-    );
+  createPaymentIntent() async {
+    try {
+      //Request body
+      Map<String, dynamic> body = {
+        'amount': '1000',
+        'currency': 'usd',
+      };
+
+      //Make post request to Stripe
+      var response = await http.post(
+        Uri.parse('https://api.stripe.com/v1/payment_intents'),
+        headers: {
+          'Authorization': 'Bearer ${dotenv.env['STRIPE_SECRET']}',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: body,
+      );
+      return json.decode(response.body);
+    } catch (err) {
+      throw Exception(err.toString());
+    }
   }
+
+  displayPaymentSheet() async {
+    try {
+      await Stripe.instance.presentPaymentSheet().then((value) {
+        // Clear paymentIntent variable after successful payment
+        // Redirect to payment result screen
+        paymentIntent = null;
+        Navigator.of(context).pushNamed(
+          PaymentResultScreen.routeName,
+          arguments: {
+            'success': true,
+            'charityId': widget.charityData['id'],
+            'charityName': widget.charityData['name']
+          },
+        );
+      }).onError((error, stackTrace) {
+        throw Exception(error);
+      });
+    } on StripeException catch (e) {
+      // Redirect to payment result screen
+      print('Error is:---> $e');
+      Navigator.of(context).pushNamed(
+        PaymentResultScreen.routeName,
+        arguments: {
+          'success': false,
+          'charityId': widget.charityData['id'],
+          'charityName': widget.charityData['name']
+        },
+      );
+    } catch (e) {
+      print('$e');
+    }
+  }
+
+  Future<void> createPayment() async {
+    try {
+      disabledButton(true);
+      paymentIntent = await createPaymentIntent();
+
+      await Stripe.instance
+          .initPaymentSheet(
+          paymentSheetParameters: SetupPaymentSheetParameters(
+              paymentIntentClientSecret: paymentIntent![
+              'client_secret'], //Gotten from payment intent
+              style: ThemeMode.light,
+              merchantDisplayName: 'Chartion'))
+          .then((value) {});
+
+      displayPaymentSheet();
+      disabledButton(false);
+    } catch (err) {
+      throw Exception(err);
+    }
+  }
+
+  _donateNowButton() {
+    if (_isPayButtonDisabled) {
+      return null;
+    } else {
+      return createPayment();
+    }
+  }
+
+  // void selectDonationPrice(BuildContext context, int id) {
+  //   Navigator.of(context).pushNamed(
+  //     PaymentScreen.routeName,
+  //     arguments: {
+  //       'id': id,
+  //       'charityId': widget.charityData['id'],
+  //       'charityName': widget.charityData['name'],
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -146,13 +243,13 @@ class _CharitySelectDonationScreenState
             width: double.infinity,
             child: TextButton(
               onPressed: () {
-                selectDonationPrice(context, _currentSelectedPriceId);
+                _donateNowButton();
               },
               style: TextButton.styleFrom(
                 primary: Colors.white,
                 backgroundColor: Theme.of(context).primaryColor,
               ),
-              child: const Text('Donate Now'),
+              child: Text(_isPayButtonDisabled ? 'Processing...' : 'Complete Payment'),
             ),
           )
         ],
