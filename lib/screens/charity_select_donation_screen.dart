@@ -1,11 +1,10 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
 import '../providers/donation_price.dart';
+
+import '../services/stripe_service.dart';
 
 import '../screens/payment_result_screen.dart';
 
@@ -68,34 +67,6 @@ class _CharitySelectDonationScreenState
     });
   }
 
-  calculateAmount(String amount) {
-    final calculatedAmount = ((double.parse(amount)) * 100).toInt();
-    return calculatedAmount.toString();
-  }
-
-  createPaymentIntent(String amount, String currency) async {
-    try {
-      //Request body
-      Map<String, dynamic> body = {
-        'amount': calculateAmount(amount),
-        'currency': currency,
-      };
-
-      //Make post request to Stripe
-      var response = await http.post(
-        Uri.parse('https://api.stripe.com/v1/payment_intents'),
-        headers: {
-          'Authorization': 'Bearer ${dotenv.env['STRIPE_SECRET']}',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: body,
-      );
-      return json.decode(response.body);
-    } catch (err) {
-      throw Exception(err.toString());
-    }
-  }
-
   displayPaymentSheet() async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) {
@@ -132,8 +103,11 @@ class _CharitySelectDonationScreenState
   Future<void> createPayment() async {
     try {
       disabledButton(true);
-      paymentIntent =
-          await createPaymentIntent(_currentSelectedPrice, widget.charityData['currency']);
+      paymentIntent = await StripeService().createPaymentIntent(
+        _currentSelectedPrice,
+        widget.charityData['currency'],
+        widget.charityData['token'],
+      );
 
       await Stripe.instance
           .initPaymentSheet(

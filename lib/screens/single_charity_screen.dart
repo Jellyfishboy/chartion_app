@@ -39,10 +39,16 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
     super.didChangeDependencies();
   }
 
-  void selectDonationCharity(BuildContext context, int id, String name, String currency) {
+  void selectDonationCharity(BuildContext context, int id, String charityToken,
+      String name, String currency) {
     Navigator.of(context).pushNamed(
       CharitySelectDonationScreen.routeName,
-      arguments: {'id': id, 'name': name, 'currency': currency},
+      arguments: {
+        'id': id,
+        'token': charityToken,
+        'name': name,
+        'currency': currency,
+      },
     );
   }
 
@@ -99,8 +105,8 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
                                         height: 10,
                                       ),
                                       Container(
-                                        padding:
-                                            EdgeInsets.symmetric(horizontal: 10),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10),
                                         width: double.infinity,
                                         child: Text(
                                           charityData.singleItem.name,
@@ -115,8 +121,8 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
                                         height: 10,
                                       ),
                                       Container(
-                                        padding:
-                                            EdgeInsets.symmetric(horizontal: 10),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10),
                                         width: double.infinity,
                                         child: Text(
                                           charityData.singleItem.description,
@@ -137,11 +143,11 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
                                 child: TextButton(
                                   onPressed: () {
                                     selectDonationCharity(
-                                      context,
-                                      charityData.singleItem.id,
-                                      charityData.singleItem.name,
-                                      charityData.singleItem.currency
-                                    );
+                                        context,
+                                        charityData.singleItem.id,
+                                        charityData.singleItem.token,
+                                        charityData.singleItem.name,
+                                        charityData.singleItem.currency);
                                   },
                                   style: TextButton.styleFrom(
                                     primary: Colors.white,

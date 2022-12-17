@@ -1,5 +1,6 @@
 class Charity {
   final int id;
+  final String token;
   final String name;
   final String description;
   final String registeredNumber;
@@ -16,6 +17,7 @@ class Charity {
 
   Charity({
     required this.id,
+    required this.token,
     required this.name,
     required this.description,
     required this.registeredNumber,
@@ -32,6 +34,7 @@ class Charity {
   factory Charity.fromJson(Map<String, dynamic> json) {
     return Charity(
       id: json['id'],
+      token: json['token'],
       name: json['name'],
       description: json['description'],
       registeredNumber: json['registered_number'],

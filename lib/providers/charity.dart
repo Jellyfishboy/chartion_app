@@ -110,6 +110,7 @@ class CharityProvider with ChangeNotifier {
     print('LIST CHARITIES');
     print ('Load last ${_didLastLoad}');
     print('Current Page ${_currentPage}');
+    print('Is refresh ${isRefresh}');
     try {
       if (clearSearch) {
         _totalPages = 5;
@@ -146,8 +147,8 @@ class CharityProvider with ChangeNotifier {
       notifyListeners();
     } catch (error) {
       _dataState = DataState.Error;
-      throw error;
       notifyListeners();
+      throw error;
     }
   }
 
