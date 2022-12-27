@@ -11,6 +11,7 @@ class StripeService {
       Map<String, dynamic> body = {
         'amount': calculateAmount(amount),
         'currency': currency,
+        'email': 'tom.alan.dallimore@gmail.com'
       };
       // Make post request to Chartion api
       final String hmacInput = 'amount=${body['amount']}&currency=${body['currency']}';

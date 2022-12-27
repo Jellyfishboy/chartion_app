@@ -12,7 +12,7 @@ class Charity {
   // final String onboardingStep;
   final String currency;
 
-  // final String stripeAccountId;
+  final String stripeAccountId;
   bool isFavourite;
 
   Charity({
@@ -27,7 +27,7 @@ class Charity {
     required this.uniqId,
     // required this.onboardingStep,
     required this.currency,
-    // required this.stripeAccountId,
+    required this.stripeAccountId,
     this.isFavourite = false,
   });
 
@@ -43,6 +43,7 @@ class Charity {
       largeUrl: json['logo']['large_url'],
       uniqId: json['uniq_id'],
       currency: json['currency'],
+      stripeAccountId: json['stripe_account_id']
     );
   }
 }

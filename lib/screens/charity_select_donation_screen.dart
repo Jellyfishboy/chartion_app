@@ -108,20 +108,29 @@ class _CharitySelectDonationScreenState
         widget.charityData['currency'],
         widget.charityData['token'],
       );
+      // specify the account id for the charity before creating the payment sheet
+      Stripe.stripeAccountId = widget.charityData['stripeAccountId'];
 
       await Stripe.instance
           .initPaymentSheet(
-              paymentSheetParameters: SetupPaymentSheetParameters(
-                  paymentIntentClientSecret: paymentIntent![
-                      'client_secret'], //Gotten from payment intent
-                  style: ThemeMode.light,
-                  merchantDisplayName: 'Chartion'))
+            paymentSheetParameters: SetupPaymentSheetParameters(
+              paymentIntentClientSecret:
+                  paymentIntent!['payment_intent']['client_secret'], //Gotten from payment intent
+              style: ThemeMode.light,
+              merchantDisplayName: 'Donkey Donate',
+              customerEphemeralKeySecret: paymentIntent!['ephemeral_key'],
+              customerId: paymentIntent!['payment_intent']['customer']
+            ),
+          )
           .then((value) {});
 
       displayPaymentSheet();
       disabledButton(false);
     } catch (err) {
-      throw Exception(err);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $err')),
+      );
+      rethrow;
     }
   }
 

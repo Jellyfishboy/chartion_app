@@ -43,6 +43,11 @@ Widget successfulPayment(BuildContext context, dynamic paymentData) {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 10),
+        Text(
+          'Payment confirmation will be sent to your email.',
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 10),
         TextButton(
           onPressed: () {
             // removes the back button

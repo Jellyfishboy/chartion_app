@@ -40,7 +40,7 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
   }
 
   void selectDonationCharity(BuildContext context, int id, String charityToken,
-      String name, String currency) {
+      String name, String currency, String stripeAccountId) {
     Navigator.of(context).pushNamed(
       CharitySelectDonationScreen.routeName,
       arguments: {
@@ -48,6 +48,7 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
         'token': charityToken,
         'name': name,
         'currency': currency,
+        'stripeAccountId': stripeAccountId
       },
     );
   }
@@ -143,11 +144,13 @@ class _SingleCharityScreenState extends State<SingleCharityScreen> {
                                 child: TextButton(
                                   onPressed: () {
                                     selectDonationCharity(
-                                        context,
-                                        charityData.singleItem.id,
-                                        charityData.singleItem.token,
-                                        charityData.singleItem.name,
-                                        charityData.singleItem.currency);
+                                      context,
+                                      charityData.singleItem.id,
+                                      charityData.singleItem.token,
+                                      charityData.singleItem.name,
+                                      charityData.singleItem.currency,
+                                      charityData.singleItem.stripeAccountId,
+                                    );
                                   },
                                   style: TextButton.styleFrom(
                                     primary: Colors.white,
